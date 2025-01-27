@@ -1,0 +1,23 @@
+[project]
+name = "mage_agents"
+version = "0.1.0"
+description = "mage-agents using crewAI"
+authors = [{ name = "Your Name", email = "you@example.com" }]
+requires-python = ">=3.10,<3.13"
+dependencies = [
+    "crewai[tools]>=0.98.0,<1.0.0"
+]
+
+[project.scripts]
+mage_agents = "mage_agents.main:run"
+run_crew = "mage_agents.main:run"
+train = "mage_agents.main:train"
+replay = "mage_agents.main:replay"
+test = "mage_agents.main:test"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.crewai]
+type = "crew"
