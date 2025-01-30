@@ -3,3 +3,4 @@ gunicorn
 fastapi
 asyncio
 crewai
+my-magento
