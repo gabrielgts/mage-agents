@@ -1,26 +1,22 @@
 #!/usr/bin/env python
 import sys
 import warnings
-from fastapi import FastAPI, BackgroundTasks, HTTPException, Request
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
-import asyncio
-from datetime import datetime
 import os
-from crewai import Crew
-from textwrap import dedent
 from dotenv import load_dotenv
-from pydantic import BaseModel
 import uvicorn
-from routes.api import AgentsApi
+from mem0 import Memory
+from mage_agents.routes.api import AgentsApi
+from mage_agents.crew import MageAgents
 load_dotenv()
 
-from datetime import datetime
-
-from crew import MageAgents
 
 warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")
+
+# Ensure the path exists
+os.makedirs("./data", exist_ok=True)
 
 # This main file is intended to be a way for you to run your
 # crew locally, so refrain from adding unnecessary logic into this file.
@@ -31,13 +27,20 @@ def run():
     """
     Run the crew.
     """
-    inputs = {
-        'topic': 'AI LLMs',
-        'current_year': str(datetime.now().year)
-    }
-    
     try:
-        MageAgents().crew().kickoff(inputs=inputs)
+        while True:
+            user_input = input("You: ")
+            if user_input.lower() in ["exit", "quit", "bye"]:
+                print("Chatbot: Goodbye! It was nice talking to you.")
+                break
+
+            inputs = {
+                "user_message": f"{user_input}",
+            }
+
+            response = MageAgents().crew().kickoff(inputs=inputs)
+
+            print(f"Assistant: {response}")
     except Exception as e:
         raise Exception(f"An error occurred while running the crew: {e}")
 

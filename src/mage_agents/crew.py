@@ -1,7 +1,27 @@
-from crewai import Agent, Crew, Process, Task
+
+from crewai import Agent, Crew, Process, Task, LLM
 from crewai.project import CrewBase, agent, crew, task
-from tools.calculator_tools import CalculatorTools
-from tools.sec_tools import SEC10KTool, SEC10QTool
+from crewai.memory.long_term.long_term_memory import LongTermMemory
+from crewai.memory.short_term.short_term_memory import ShortTermMemory
+from crewai.memory.entity.entity_memory import EntityMemory
+from crewai.memory.storage.ltm_sqlite_storage import LTMSQLiteStorage
+from crewai.memory.storage.rag_storage import RAGStorage
+from mage_agents.tools.calculator_tools import CalculatorTools
+#from mage_agents.tools.sec_tools import SEC10KTool, SEC10QTool
+from dotenv import load_dotenv
+import os
+load_dotenv()
+
+llm = LLM(model="ollama/llama3.2:3b", base_url="http://localhost:11434")
+
+# Configuration for embeddings
+embedder = {
+	"provider": "ollama",
+	"config": {
+		"model": "nomic-embed-text",
+		"ollama_base_url": "http://localhost:11434",
+	},
+}
 
 # If you want to run a snippet of code before or after the crew starts, 
 # you can use the @before_kickoff and @after_kickoff decorators
@@ -20,34 +40,22 @@ class MageAgents():
 	# If you would like to add tools to your agents, you can learn more about it here:
 	# https://docs.crewai.com/concepts/agents#agent-tools
 	@agent
-	def researcher(self) -> Agent:
-		return Agent(
-			config=self.agents_config['researcher'],
-			verbose=True
-		)
-
-	@agent
-	def reporting_analyst(self) -> Agent:
-		return Agent(
-			config=self.agents_config['reporting_analyst'],
-			verbose=True
-		)
+	def assistant(self) -> Agent:
+			return Agent(
+				config=self.agents_config["assistant"],
+				llm=llm,
+				verbose=False,
+			)
 
 	# To learn more about structured task outputs, 
 	# task dependencies, and task callbacks, check out the documentation:
 	# https://docs.crewai.com/concepts/tasks#overview-of-a-task
 	@task
-	def research_task(self) -> Task:
+	def assistant_task(self) -> Task:
 		return Task(
-			config=self.tasks_config['research_task'],
+			config=self.tasks_config["assistant_task"], agent=self.assistant()
 		)
 
-	@task
-	def reporting_task(self) -> Task:
-		return Task(
-			config=self.tasks_config['reporting_task'],
-			output_file='report.md'
-		)
 
 	@crew
 	def crew(self) -> Crew:
@@ -60,5 +68,25 @@ class MageAgents():
 			tasks=self.tasks, # Automatically created by the @task decorator
 			process=Process.sequential,
 			verbose=True,
+			memory=True,
+			long_term_memory=LongTermMemory(
+				storage=LTMSQLiteStorage(
+					db_path="./data/long_term_memory_storage.db",
+				)
+			),
+			short_term_memory=ShortTermMemory(
+				storage=RAGStorage(
+					type="short_term",
+				),
+				embedder_config=embedder,
+				path=f"./data/short_term_memory.db",
+			),
+			entity_memory=EntityMemory(
+				storage=RAGStorage(
+					type="entities",
+				),
+				embedder_config=embedder,
+				path=f"./data/entity_memory.db",
+			),
 			# process=Process.hierarchical, # In case you wanna use that instead https://docs.crewai.com/how-to/Hierarchical/
 		)
