@@ -7,6 +7,7 @@ from crewai.memory.entity.entity_memory import EntityMemory
 from crewai.memory.storage.ltm_sqlite_storage import LTMSQLiteStorage
 from crewai.memory.storage.rag_storage import RAGStorage
 from mage_agents.tools.calculator_tools import CalculatorTools
+from crewai.knowledge.source.json_knowledge_source import JSONKnowledgeSource
 #from mage_agents.tools.sec_tools import SEC10KTool, SEC10QTool
 from dotenv import load_dotenv
 import os
@@ -22,6 +23,10 @@ embedder = {
 		"ollama_base_url": "http://localhost:11434",
 	},
 }
+
+magento_knowledge = JSONKnowledgeSource(
+    file_paths=["magento_knowledge.json"]
+)
 
 # If you want to run a snippet of code before or after the crew starts, 
 # you can use the @before_kickoff and @after_kickoff decorators
@@ -45,7 +50,17 @@ class MageAgents():
 				config=self.agents_config["assistant"],
 				llm=llm,
 				verbose=False,
+				task=self.tasks_config["assistant"],
+				knowledge_sources=[magento_knowledge]
 			)
+	
+	def manager(self) -> Agent:
+		return Agent(
+			config=self.agents_config["manager"],
+			llm=llm,
+			verbose=True,
+			allow_delegation=True,
+		)
 
 	# To learn more about structured task outputs, 
 	# task dependencies, and task callbacks, check out the documentation:
@@ -53,7 +68,8 @@ class MageAgents():
 	@task
 	def assistant_task(self) -> Task:
 		return Task(
-			config=self.tasks_config["assistant_task"], agent=self.assistant()
+			config=self.tasks_config["assistant_task"], 
+			agent=self.assistant()
 		)
 
 
@@ -66,27 +82,27 @@ class MageAgents():
 		return Crew(
 			agents=self.agents, # Automatically created by the @agent decorator
 			tasks=self.tasks, # Automatically created by the @task decorator
-			process=Process.sequential,
+			process=Process.hierarchical,
+			manager_agent=self.manager(),
 			verbose=True,
-			memory=True,
-			long_term_memory=LongTermMemory(
-				storage=LTMSQLiteStorage(
-					db_path="./data/long_term_memory_storage.db",
-				)
-			),
-			short_term_memory=ShortTermMemory(
-				storage=RAGStorage(
-					type="short_term",
-				),
-				embedder_config=embedder,
-				path=f"./data/short_term_memory.db",
-			),
-			entity_memory=EntityMemory(
-				storage=RAGStorage(
-					type="entities",
-				),
-				embedder_config=embedder,
-				path=f"./data/entity_memory.db",
-			),
-			# process=Process.hierarchical, # In case you wanna use that instead https://docs.crewai.com/how-to/Hierarchical/
+			memory=False,
+			# long_term_memory=LongTermMemory(
+			# 	storage=LTMSQLiteStorage(
+			# 		db_path="./data/long_term_memory_storage.db",
+			# 	)
+			# ),
+			# short_term_memory=ShortTermMemory(
+			# 	storage=RAGStorage(
+			# 		type="short_term",
+			# 	),
+			# 	embedder_config=embedder,
+			# 	path=f"./data/short_term_memory.db",
+			# ),
+			# entity_memory=EntityMemory(
+			# 	storage=RAGStorage(
+			# 		type="entities",
+			# 	),
+			# 	embedder_config=embedder,
+			# 	path=f"./data/entity_memory.db",
+			# ),
 		)
