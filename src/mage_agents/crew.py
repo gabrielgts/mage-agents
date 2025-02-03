@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 import os
 load_dotenv()
 
-llm = LLM(model="ollama/llama3.2:3b", base_url="http://localhost:11434")
+llm = LLM(model="ollama/llama3.2:3b", base_url="http://localhost:11434", temperature=0.2)
 
 # Configuration for embeddings
 embedder = {
@@ -21,6 +21,7 @@ embedder = {
 	"config": {
 		"model": "nomic-embed-text",
 		"ollama_base_url": "http://localhost:11434",
+		"api_key": ""
 	},
 }
 
@@ -50,8 +51,8 @@ class MageAgents():
 				config=self.agents_config["assistant"],
 				llm=llm,
 				verbose=False,
-				task=self.tasks_config["assistant"],
-				knowledge_sources=[magento_knowledge]
+				knowledge_sources=[magento_knowledge],
+				embedder_config=embedder,
 			)
 	
 	def manager(self) -> Agent:
@@ -86,6 +87,8 @@ class MageAgents():
 			manager_agent=self.manager(),
 			verbose=True,
 			memory=False,
+			llm=llm,
+			embedder=embedder,
 			# long_term_memory=LongTermMemory(
 			# 	storage=LTMSQLiteStorage(
 			# 		db_path="./data/long_term_memory_storage.db",
