@@ -53,11 +53,6 @@ config = {
 
 memory = Memory.from_config(config)
 
-memory.add([{"role": "user", "content" : "User: {user_input}"}], user_id="user")
-
-# Retrieve relevant information from vector store
-relevant_info = memory.search(user_id="user", query="tell me my name." , limit=3)
-print(relevant_info)
 def run():
     """
     Run the crew.
@@ -70,12 +65,11 @@ def run():
                 break
 
             # Add user input to memory
-            memory.add([{"role": "user", "content" : "User: {user_input}"}], user_id="user")
+            memory.add("User: {user_input}", user_id="user")
 
             # Retrieve relevant information from vector store
-            relevant_info = memory.search(user_id="user", query=user_input, limit=3)
-            print(relevant_info)
-            context = "\n".join(message for message in relevant_info)
+            relevant_info = memory.get_all(user_id="user")
+            context = "\n".join(relevant_info)
 
             inputs = {
                 "user_message": f"{user_input}",
