@@ -13,15 +13,13 @@ from dotenv import load_dotenv
 import os
 load_dotenv()
 
-llm = LLM(model="ollama/llama3.2:3b", base_url="http://localhost:11434", temperature=0.2)
+llm = LLM(model="ollama/llama3.2:latest", base_url="http://localhost:11434", temperature=0.2)
 
 # Configuration for embeddings
 embedder = {
 	"provider": "ollama",
 	"config": {
-		"model": "nomic-embed-text",
-		"ollama_base_url": "http://localhost:11434",
-		"api_key": ""
+		"model": "nomic-embed-text:latest",
 	},
 }
 
@@ -52,7 +50,7 @@ class MageAgents():
 				llm=llm,
 				verbose=False,
 				knowledge_sources=[magento_knowledge],
-				embedder_config=embedder,
+				embedder=embedder,
 			)
 	
 	def manager(self) -> Agent:
@@ -86,26 +84,28 @@ class MageAgents():
 			process=Process.hierarchical,
 			manager_agent=self.manager(),
 			verbose=True,
-			memory=False,
+			memory=True,
 			llm=llm,
 			embedder=embedder,
-			# long_term_memory=LongTermMemory(
-			# 	storage=LTMSQLiteStorage(
-			# 		db_path="./data/long_term_memory_storage.db",
-			# 	)
-			# ),
-			# short_term_memory=ShortTermMemory(
-			# 	storage=RAGStorage(
-			# 		type="short_term",
-			# 	),
-			# 	embedder_config=embedder,
-			# 	path=f"./data/short_term_memory.db",
-			# ),
-			# entity_memory=EntityMemory(
-			# 	storage=RAGStorage(
-			# 		type="entities",
-			# 	),
-			# 	embedder_config=embedder,
-			# 	path=f"./data/entity_memory.db",
-			# ),
+			long_term_memory=LongTermMemory(
+				storage=LTMSQLiteStorage(
+					db_path="./data/long_term_memory_storage.db",
+				)
+			),
+			short_term_memory=ShortTermMemory(
+				storage=RAGStorage(
+					type="short_term",
+					embedder_config=embedder
+				),
+				embedder_config=embedder,
+				path=f"./data/short_term_memory.db",
+			),
+			entity_memory=EntityMemory(
+				storage=RAGStorage(
+					type="entities",
+					embedder_config=embedder
+				),
+				embedder_config=embedder,
+				path=f"./data/entity_memory.db",
+			),
 		)
