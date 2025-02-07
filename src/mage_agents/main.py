@@ -23,6 +23,41 @@ os.makedirs("./data", exist_ok=True)
 # Replace with inputs you want to test with, it will automatically
 # interpolate any tasks and agents information
 
+config = {
+    "vector_store": {
+        "provider": "chroma",
+        "config": {
+            "collection_name": "chatbot_memory",
+            "path": "./chroma_db",
+        },
+    },
+    "llm": {
+        "provider": "ollama",
+        "config": {
+            "model": "llama3.2:latest",
+            "temperature": 0.1,
+            "max_tokens": 2000,
+            "ollama_base_url": "http://localhost:11434",  # Ensure this URL is correct
+        },
+    },
+    "embedder": {
+        "provider": "ollama",
+        "config": {
+            "model": "nomic-embed-text:latest",
+            "ollama_base_url": "http://localhost:11434",
+            "embedding_dims": 384
+        },
+    },
+    "version": "v1.1"
+}
+
+memory = Memory.from_config(config)
+
+memory.add([{"role": "user", "content" : "User: {user_input}"}], user_id="user")
+
+# Retrieve relevant information from vector store
+relevant_info = memory.search(user_id="user", query="tell me my name." , limit=3)
+print(relevant_info)
 def run():
     """
     Run the crew.
@@ -34,13 +69,25 @@ def run():
                 print("Chatbot: Goodbye! It was nice talking to you.")
                 break
 
+            # Add user input to memory
+            memory.add([{"role": "user", "content" : "User: {user_input}"}], user_id="user")
+
+            # Retrieve relevant information from vector store
+            relevant_info = memory.search(user_id="user", query=user_input, limit=3)
+            print(relevant_info)
+            context = "\n".join(message for message in relevant_info)
+
             inputs = {
                 "user_message": f"{user_input}",
+                "context": f"{context}",
             }
 
             response = MageAgents().crew().kickoff(inputs=inputs)
-
+            
+            # Add chatbot response to memory
+            memory.add(f"Assistant: {response}", user_id="assistant")
             print(f"Assistant: {response}")
+            
     except Exception as e:
         raise Exception(f"An error occurred while running the crew: {e}")
 

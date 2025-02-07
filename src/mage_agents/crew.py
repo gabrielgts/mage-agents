@@ -51,6 +51,7 @@ class MageAgents():
 				verbose=False,
 				knowledge_sources=[magento_knowledge],
 				embedder=embedder,
+				max_iter=2
 			)
 	
 	def manager(self) -> Agent:
@@ -87,25 +88,4 @@ class MageAgents():
 			memory=True,
 			llm=llm,
 			embedder=embedder,
-			long_term_memory=LongTermMemory(
-				storage=LTMSQLiteStorage(
-					db_path="./data/long_term_memory_storage.db",
-				)
-			),
-			short_term_memory=ShortTermMemory(
-				storage=RAGStorage(
-					type="short_term",
-					embedder_config=embedder
-				),
-				embedder_config=embedder,
-				path=f"./data/short_term_memory.db",
-			),
-			entity_memory=EntityMemory(
-				storage=RAGStorage(
-					type="entities",
-					embedder_config=embedder
-				),
-				embedder_config=embedder,
-				path=f"./data/entity_memory.db",
-			),
 		)
