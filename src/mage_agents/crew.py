@@ -49,6 +49,7 @@ class MageAgents():
 				config=self.agents_config["assistant"],
 				llm=llm,
 				verbose=False,
+				embedder=embedder,
 				knowledge_sources=[magento_knowledge],
 				embedder=embedder,
 				max_iter=2
@@ -60,6 +61,7 @@ class MageAgents():
 			llm=llm,
 			verbose=True,
 			allow_delegation=True,
+			max_iter=2
 		)
 
 	# To learn more about structured task outputs, 

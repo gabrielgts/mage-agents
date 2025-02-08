@@ -45,13 +45,19 @@ config = {
         "config": {
             "model": "nomic-embed-text:latest",
             "ollama_base_url": "http://localhost:11434",
-            "embedding_dims": 384
         },
     },
     "version": "v1.1"
 }
 
 memory = Memory.from_config(config)
+
+messages = [
+   {"role": "user", "content": "Hi, I'm Alex. I like to play cricket on weekends."},
+   {"role": "assistant", "content": "Hello Alex! It's great to know that you enjoy playing cricket on weekends. I'll remember that for future reference."}
+]
+memory.add(messages, user_id="alice")
+print(memory.get_all(user_id="alice", limit=10))
 
 def run():
     """
@@ -65,11 +71,13 @@ def run():
                 break
 
             # Add user input to memory
-            memory.add("User: {user_input}", user_id="user")
+            memory.add([{"role": "user", "content": "User: here"}], user_id="gabriel")
 
             # Retrieve relevant information from vector store
-            relevant_info = memory.get_all(user_id="user")
+            relevant_info = memory.get_all(user_id="gabriel", limit=10)
             context = "\n".join(relevant_info)
+
+            print(relevant_info, context, user_input)
 
             inputs = {
                 "user_message": f"{user_input}",
