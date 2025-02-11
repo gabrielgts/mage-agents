@@ -76,10 +76,6 @@ config = {
 
 memory = Memory.from_config(config)
 
-
-memory.add("Hi how are you?", user_id="test", metadata={"category": "magento"})
-print(memory.get_all(user_id="test", limit=10))
-
 def run():
     """
     Run the crew.

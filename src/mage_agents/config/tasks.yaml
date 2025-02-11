@@ -17,14 +17,14 @@ research_product_market:
     - Prices
     - Key features
     - Common attributes
-  agent: internet_researcher
+  #agent: internet_researcher
 
 define_average_price:
   description: >
     Analyze the pricing data collected by the internet_researcher and define an optimal average price for the {topic} product.
   expected_output: >
     - Recommended average price in float format
-  agent: pricing_analyst
+  #agent: pricing_analyst
 
 generate_product_images:
   description: >
@@ -33,14 +33,14 @@ generate_product_images:
     A set of images in the following format:
     - Main hero image
     - Product variations (size, color, angle views)
-  agent: image_creator
+  #agent: image_creator
 
 publish_to_adobe_commerce:
   description: >
     Publish the validated product data, including all details and images, to Adobe Commerce using its API.
   expected_output: >
     A confirmation message that the product has been successfully published.
-  agent: publisher
+  #agent: publisher
 
 reporting_task:
   description: >
@@ -49,7 +49,7 @@ reporting_task:
   expected_output: >
     A fully fledged report with the main topics, each with a full section of information.
     Formatted as markdown without '```'
-  agent: reporting_analyst
+  #agent: reporting_analyst
 
 research_task:
   description: >
@@ -58,7 +58,7 @@ research_task:
     the current year is {current_year}.
   expected_output: >
     A list with 10 bullet points of the most relevant information about {topic}
-  agent: researcher
+  #agent: researcher
 
 # validate_final_product:
 #   description: >

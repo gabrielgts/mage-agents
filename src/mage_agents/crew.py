@@ -24,7 +24,7 @@ embedder = {
 }
 
 magento_knowledge = JSONKnowledgeSource(
-    file_paths=["adobe_commerce_knowledge.json"]
+    file_paths=["adobe_commerce_knowledge_embled.json"]
 )
 
 # If you want to run a snippet of code before or after the crew starts, 
