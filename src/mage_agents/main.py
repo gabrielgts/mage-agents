@@ -1,16 +1,17 @@
 #!/usr/bin/env python
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
 import sys
 import warnings
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-import os
-from dotenv import load_dotenv
 import uvicorn
 from mem0 import Memory
 from mage_agents.routes.api import AgentsApi
 from mage_agents.crew import MageAgents
-load_dotenv()
 
 
 warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")
@@ -22,6 +23,28 @@ os.makedirs("./data", exist_ok=True)
 # crew locally, so refrain from adding unnecessary logic into this file.
 # Replace with inputs you want to test with, it will automatically
 # interpolate any tasks and agents information
+
+mem0_custom_prompt = """
+Please only extract entities containing customer support information, order details, and user information. 
+Here are some few shot examples:
+
+Input: Hi.
+Output: {{"facts" : [Hi]}}
+
+Input: The weather is nice today.
+Output: {{"facts" : [weather is nice today]}}
+
+Input: My order #12345 hasn't arrived yet.
+Output: {{"facts" : ["Order #12345 not received"]}}
+
+Input: I'm John Doe, and I'd like to return the shoes I bought last week.
+Output: {{"facts" : ["Customer name: John Doe", "Wants to return shoes", "Purchase made last week"]}}
+
+Input: I ordered a red shirt, size medium, but received a blue one instead.
+Output: {{"facts" : ["Ordered red shirt, size medium", "Received blue shirt instead"]}}
+
+Return the facts and customer information in a json format as shown above.
+"""
 
 config = {
     "vector_store": {
@@ -47,17 +70,15 @@ config = {
             "ollama_base_url": "http://localhost:11434",
         },
     },
-    "version": "v1.1"
+    "version": "v1.1",
+    "custom_prompt": mem0_custom_prompt,
 }
 
 memory = Memory.from_config(config)
 
-messages = [
-   {"role": "user", "content": "Hi, I'm Alex. I like to play cricket on weekends."},
-   {"role": "assistant", "content": "Hello Alex! It's great to know that you enjoy playing cricket on weekends. I'll remember that for future reference."}
-]
-memory.add(messages, user_id="alice")
-print(memory.get_all(user_id="alice", limit=10))
+
+memory.add("Hi how are you?", user_id="test", metadata={"category": "magento"})
+print(memory.get_all(user_id="test", limit=10))
 
 def run():
     """
@@ -71,7 +92,7 @@ def run():
                 break
 
             # Add user input to memory
-            memory.add([{"role": "user", "content": "User: here"}], user_id="gabriel")
+            memory.add([{"role": "user", "content": user_input }], user_id="gabriel")
 
             # Retrieve relevant information from vector store
             relevant_info = memory.get_all(user_id="gabriel", limit=10)
@@ -87,7 +108,7 @@ def run():
             response = MageAgents().crew().kickoff(inputs=inputs)
             
             # Add chatbot response to memory
-            memory.add(f"Assistant: {response}", user_id="assistant")
+            memory.add([{"role": "assistant", "content": response }], user_id="gabriel")
             print(f"Assistant: {response}")
             
     except Exception as e:

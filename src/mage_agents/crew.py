@@ -24,7 +24,7 @@ embedder = {
 }
 
 magento_knowledge = JSONKnowledgeSource(
-    file_paths=["magento_knowledge.json"]
+    file_paths=["adobe_commerce_knowledge.json"]
 )
 
 # If you want to run a snippet of code before or after the crew starts, 
@@ -49,7 +49,6 @@ class MageAgents():
 				config=self.agents_config["assistant"],
 				llm=llm,
 				verbose=False,
-				embedder=embedder,
 				knowledge_sources=[magento_knowledge],
 				embedder=embedder,
 				max_iter=2
