@@ -8,7 +8,7 @@ class MagentoProductSearchTool(BaseTool):
     Tool para interação com a API do Magento 2 usando MyMagento.
     Permite buscar produtos.
     """
-    def __init__(self, product_att: str, product_ref: str):
+    def __init__(self, product_att: Optional[str] = None, product_ref: Optional[str] = None, **kwargs):
         super().__init__()
         self.client = Client(domain="https://magento.test", username="gabriel", password="teste123@", local=True, login=False, token="xzzxlxqx4jdh7rqfmx1ra43adjt1h567")
         self.product_ref = product_ref
@@ -21,14 +21,14 @@ class MagentoProductSearchTool(BaseTool):
         return result[0] if result else "Produto não encontrado."
     
     def _run(self, search_query: str, **kwargs: Any) -> Any:
-        return super()._run(query=search_query, **kwargs)
+        return self.search_product()
 
 class MagentoProductCreationTool(BaseTool):
     """
     Tool para interação com a API do Magento 2 usando MyMagento.
     Permite criar produtos.
     """
-    def __init__(self, sku: str, name: str, price: float, description: str):
+    def __init__(self, sku: Optional[str] = None, name: Optional[str] = None, price: Optional[float] = None, description: Optional[str] = None, **kwargs):
         super().__init__()
         self.client = Client(domain="https://magento.test", username="gabriel", password="teste123@", local=True, login=False, token="xzzxlxqx4jdh7rqfmx1ra43adjt1h567")
         self.sku = sku
@@ -54,12 +54,36 @@ class MagentoProductCreationTool(BaseTool):
         return response.json() if response.ok else f"Erro ao criar o produto: {response.text}"
 
     def _run(self, search_query: str, **kwargs: Any) -> Any:
-    return super()._run(query=search_query, **kwargs)
+        return self.create_product()
 
-    def update_stock(self, sku: str, qty: int):
+class MagentoInventoryTool(BaseTool):
+    """
+    Tool para interação com a API do Magento 2 usando MyMagento.
+    Permite atualizar inventario.
+    """
+    def __init__(self, sku: Optional[str] = None, qty: Optional[int] = None, **kwargs):
+        super().__init__()
+        self.client = Client(domain="https://magento.test", username="gabriel", password="teste123@", local=True, login=False, token="xzzxlxqx4jdh7rqfmx1ra43adjt1h567")
+        self.sku = sku
+        self.qty = qty
+
+    def update_stock(self):
         """Atualiza o estoque de um produto no Magento."""
-        response = self.client.post(f'stockItems/{sku}', data={"qty": qty, "is_in_stock": True})
+        response = self.client.post(f'stockItems/{self.sku}', data={"qty": self.qty, "is_in_stock": self.qty > 0})
         return "Estoque atualizado com sucesso!" if response.ok else f"Erro ao atualizar estoque: {response.text}"
+    
+    def _run(self, search_query: str, **kwargs: Any) -> Any:
+        return self.update_stock()
+
+class MagentoOrderListTool(BaseTool):
+    """
+    Tool para interação com a API do Magento 2 usando MyMagento.
+    Permite busca de ordens.
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__()
+        self.client = Client(domain="https://magento.test", username="gabriel", password="teste123@", local=True, login=False, token="xzzxlxqx4jdh7rqfmx1ra43adjt1h567")
 
     def list_orders(self):
         """Lista pedidos recentes no Magento."""
@@ -67,3 +91,5 @@ class MagentoProductCreationTool(BaseTool):
         result = order_search.get_all()
         return [{"order_id": order.increment_id, "status": order.status} for order in result]
     
+    def _run(self, search_query: str, **kwargs: Any) -> Any:
+        return self.list_orders()

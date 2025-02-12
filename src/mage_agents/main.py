@@ -110,6 +110,7 @@ def run():
     """
     Run the crew.
     """
+    add_knowledge()
     try:
         while True:
             user_input = input("You: ")
@@ -234,6 +235,5 @@ def api():
 
     except Exception as e:
         raise Exception(f"An error occurred while creating server: {e}")
-add_knowledge()
 if __name__ == "__main__":
     api()
