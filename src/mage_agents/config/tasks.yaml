@@ -11,32 +11,32 @@ search_product_task:
     Retrieve detailed information about a product by its SKU.
   expected_output: >
     Full product details or an error message.
-  agent: manager
-  tools: [MagentoTool.search_product]
+  # agent: manager
+  # tools: [MagentoProductSearchTool]
 
 create_product_task:
   description: >
     Add a new product to Magento with the given name, price, and description.
   expected_output: >
     Confirmation of product creation or error details.
-  agent: manager
-  tools: [MagentoTool.create_product]
+  # agent: manager
+  # tools: [MagentoProductCreationTool]
 
 update_stock_task:
   description: >
     Update the stock quantity of a product in Magento.
   expected_output: >
     Confirmation of stock update or error details.
-  agent: manager
-  tools: [MagentoTool.update_stock]
+  # agent: manager
+  # tools: [MagentoInventoryTool]
 
 list_orders_task:
   description: >
     Retrieve the most recent orders from Magento.
   expected_output: >
     A list of orders with their IDs and statuses.
-  agent: manager
-  tools: [MagentoTool.list_orders]
+  # agent: manager
+  # tools: [MagentoOrderListTool]
 
 
 # Product creation stuff

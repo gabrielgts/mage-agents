@@ -54,24 +54,10 @@ Please extract relevant information from technical documentation and user instru
 Here are some few-shot examples:  
 
 Input: "category": "[Category of the content]", "summary": "[Summary of the extracted information]", "url": "[URL of reference to the extracted information]", "content": "[Full extracted content]"
-Output: {{ "facts" : {
-        "category": [Category of the content],
-        "summary": [Summary of the extracted information],
-        "content": [Full extracted content],
-        "url": [URL of reference to the extracted information]
-    }
-}}
-
-Here is an example: 
+Output: {{"category": [Category of the content],"summary": [Summary of the extracted information],"content": [Full extracted content],"url": [URL of reference to the extracted information]}}
 
 Input: "category": "Adminstration", "summary": "Adobe Commerce support tools include Data Collector for system information gathering and Backup for creating code and database copies.","url": "https://experienceleague.adobe.com/en/docs/commerce-admin/systems/tools/support", "content": "Adobe Commerce provides support tools to identify system issues. The Data Collector gathers system information to assist in troubleshooting. The backup feature allows creating copies of the code and database, which can be exported as CSV or XML."
-Output: {{ "facts" : {
-    "category": "Support",
-    "summary": "Adobe Commerce support tools include Data Collector for system information gathering and Backup for creating code and database copies.",
-    "content": "Adobe Commerce provides support tools to identify system issues. The Data Collector gathers system information to assist in troubleshooting. The backup feature allows creating copies of the code and database, which can be exported as CSV or XML.",
-    "url": "https://experienceleague.adobe.com/en/docs/commerce-admin/systems/tools/support"
-    }
-}}
+Output: {{"category": "Support","summary": "Adobe Commerce support tools include Data Collector for system information gathering and Backup for creating code and database copies.","content": "Adobe Commerce provides support tools to identify system issues. The Data Collector gathers system information to assist in troubleshooting. The backup feature allows creating copies of the code and database, which can be exported as CSV or XML.","url": "https://experienceleague.adobe.com/en/docs/commerce-admin/systems/tools/support"}}
 
 Return the extracted information in the same format shown above.
 """
@@ -161,17 +147,15 @@ def add_knowledge():
             full_content = content.get("content", "")
             unique_id = hashlib.sha256(url.encode('utf-8')).hexdigest()[0:35]
 
-            try:
-                memory.get(unique_id)
-                print(f"Dado já existente no Mem0AI: {url}")
-            except Exception as e:
-                memory_item = memory.add(
-                    [{"role" : "assistant", "category": category, "summary": json.dumps(summary), "url": json.dumps(url), "content": json.dumps(full_content)}],
-                    user_id="knowledge",
-                    metadata={"url": json.dumps(url), "category": category, "embeddings": embeddings},
-                    prompt=mem0_knowledge_prompt
-                )
-                print(f"Inserindo novo dado: {memory_item}")
+
+            print(f"Inserindo novo dado: {url}")
+            memory_item = memory.add(
+                [{"role" : "assistant", "category": json.dumps(category), "summary": json.dumps(summary), "url": json.dumps(url), "content": json.dumps(full_content)}],
+                user_id="knowledge",
+                metadata={"url": json.dumps(url), "category": category},
+                prompt=mem0_knowledge_prompt
+            )
+            print(memory_item)
     except Exception as e:
         print(f"❌ Error in JSON: {e}")
         print({"role" : "system","category": category, "summary": summary, "url": json.dumps(url), "content": json.dumps(full_content)})

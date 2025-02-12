@@ -9,6 +9,7 @@ from crewai.memory.storage.rag_storage import RAGStorage
 from mage_agents.tools.calculator_tools import CalculatorTools
 from mage_agents.tools.magento_tools import MagentoProductSearchTool, MagentoProductCreationTool, MagentoInventoryTool, MagentoOrderListTool
 from crewai.knowledge.source.json_knowledge_source import JSONKnowledgeSource
+from crewai.knowledge.storage.knowledge_storage import KnowledgeStorage
 from crewai_tools import WebsiteSearchTool, ScrapeWebsiteTool, TXTSearchTool
 #from mage_agents.tools.sec_tools import SEC10KTool, SEC10QTool
 from dotenv import load_dotenv
@@ -26,7 +27,11 @@ embedder = {
 }
 
 magento_knowledge = JSONKnowledgeSource(
-    file_paths=["adobe_commerce_knowledge_embled.json"]
+    file_paths=["adobe_commerce_knowledge_3.json"],
+	collection_name="magento_knowledge",
+	embedder=embedder,
+	chunk_size=3000,
+	chunk_overlap=200
 )
 
 # If you want to run a snippet of code before or after the crew starts, 
