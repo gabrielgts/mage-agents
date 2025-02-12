@@ -7,6 +7,7 @@ from crewai.memory.entity.entity_memory import EntityMemory
 from crewai.memory.storage.ltm_sqlite_storage import LTMSQLiteStorage
 from crewai.memory.storage.rag_storage import RAGStorage
 from mage_agents.tools.calculator_tools import CalculatorTools
+from mage_agents.tools.magento_tools import MagentoTool
 from crewai.knowledge.source.json_knowledge_source import JSONKnowledgeSource
 #from mage_agents.tools.sec_tools import SEC10KTool, SEC10QTool
 from dotenv import load_dotenv
@@ -40,6 +41,7 @@ class MageAgents():
 	# Tasks: https://docs.crewai.com/concepts/tasks#yaml-configuration-recommended
 	agents_config = 'config/agents.yaml'
 	tasks_config = 'config/tasks.yaml'
+	magento_tool = MagentoTool()
 
 	# If you would like to add tools to your agents, you can learn more about it here:
 	# https://docs.crewai.com/concepts/agents#agent-tools
@@ -71,6 +73,36 @@ class MageAgents():
 		return Task(
 			config=self.tasks_config["assistant_task"], 
 			agent=self.assistant()
+		)
+	
+
+	# Creating Tasks
+	def search_product_task(self) -> Task: 
+		return Task(
+			config=self.tasks_config["search_product_task"], 
+			agent=self.manager(),
+			tools=[self.magento_tool.search_product]
+		)
+
+	def create_product_task(self) -> Task:  
+		return Task(
+			config=self.tasks_config["create_product_task"], 
+			agent=self.manager(),
+			tools=[self.magento_tool.create_product]
+		)
+
+	def update_stock_task(self) -> Task:
+		return Task(
+			config=self.tasks_config["update_stock_task"], 
+			agent=self.manager(),
+			tools=[self.magento_tool.update_stock]
+		)
+
+	def list_orders_task (self) -> Task:
+		return Task(
+			config=self.tasks_config["list_orders_task"], 
+			agent=self.manager(),
+			tools=[self.magento_tool.list_orders]
 		)
 
 

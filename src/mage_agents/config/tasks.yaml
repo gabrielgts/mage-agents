@@ -6,6 +6,39 @@ assistant_task:
     Your output should be a relevant, accurate, and engaging response that directly addresses the user's 
     query or continues the conversation logically.
 
+search_product_task:
+  description: >
+    Retrieve detailed information about a product by its SKU.
+  expected_output: >
+    Full product details or an error message.
+  agent: manager
+  tools: [MagentoTool.search_product]
+
+create_product_task:
+  description: >
+    Add a new product to Magento with the given name, price, and description.
+  expected_output: >
+    Confirmation of product creation or error details.
+  agent: manager
+  tools: [MagentoTool.create_product]
+
+update_stock_task:
+  description: >
+    Update the stock quantity of a product in Magento.
+  expected_output: >
+    Confirmation of stock update or error details.
+  agent: manager
+  tools: [MagentoTool.update_stock]
+
+list_orders_task:
+  description: >
+    Retrieve the most recent orders from Magento.
+  expected_output: >
+    A list of orders with their IDs and statuses.
+  agent: manager
+  tools: [MagentoTool.list_orders]
+
+
 # Product creation stuff
 research_product_market:
   description: >
