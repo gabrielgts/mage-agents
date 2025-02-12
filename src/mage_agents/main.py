@@ -234,6 +234,6 @@ def api():
 
     except Exception as e:
         raise Exception(f"An error occurred while creating server: {e}")
-
+add_knowledge()
 if __name__ == "__main__":
     api()
