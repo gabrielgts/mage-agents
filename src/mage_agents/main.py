@@ -12,6 +12,8 @@ import uvicorn
 from mem0 import Memory
 from mage_agents.routes.api import AgentsApi
 from mage_agents.crew import MageAgents
+import json
+import hashlib
 
 
 warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")
@@ -46,6 +48,34 @@ Output: {{"facts" : ["Ordered red shirt, size medium", "Received blue shirt inst
 Return the facts and customer information in a json format as shown above.
 """
 
+mem0_knowledge_prompt = """
+Please extract relevant information from technical documentation and user instructions.  
+
+Here are some few-shot examples:  
+
+Input: "category": "[Category of the content]", "summary": "[Summary of the extracted information]", "url": "[URL of reference to the extracted information]", "content": "[Full extracted content]"
+Output: {{ "facts" : {
+        "category": [Category of the content],
+        "summary": [Summary of the extracted information],
+        "content": [Full extracted content],
+        "url": [URL of reference to the extracted information]
+    }
+}}
+
+Here is an example: 
+
+Input: "category": "Adminstration", "summary": "Adobe Commerce support tools include Data Collector for system information gathering and Backup for creating code and database copies.","url": "https://experienceleague.adobe.com/en/docs/commerce-admin/systems/tools/support", "content": "Adobe Commerce provides support tools to identify system issues. The Data Collector gathers system information to assist in troubleshooting. The backup feature allows creating copies of the code and database, which can be exported as CSV or XML."
+Output: {{ "facts" : {
+    "category": "Support",
+    "summary": "Adobe Commerce support tools include Data Collector for system information gathering and Backup for creating code and database copies.",
+    "content": "Adobe Commerce provides support tools to identify system issues. The Data Collector gathers system information to assist in troubleshooting. The backup feature allows creating copies of the code and database, which can be exported as CSV or XML.",
+    "url": "https://experienceleague.adobe.com/en/docs/commerce-admin/systems/tools/support"
+    }
+}}
+
+Return the extracted information in the same format shown above.
+"""
+
 config = {
     "vector_store": {
         "provider": "chroma",
@@ -67,7 +97,7 @@ config = {
         "provider": "ollama",
         "config": {
             "model": "nomic-embed-text:latest",
-            "ollama_base_url": "http://localhost:11434",
+            "ollama_base_url": "http://localhost:11434?num_ctx=4048",
         },
     },
     "version": "v1.1",
@@ -109,6 +139,41 @@ def run():
             
     except Exception as e:
         raise Exception(f"An error occurred while running the crew: {e}")
+    
+def add_knowledge():
+    """
+    Add Knowledge information
+    """
+    try:
+        print(memory.get_all(user_id="knowledge", limit=200))
+        json_file = "knowledge/adobe_commerce_knowledge_embled.json"
+        if not os.path.exists(json_file):
+            raise FileNotFoundError(f"File {json_file} not found.")
+    
+        with open(json_file, "r", encoding="utf-8") as file:
+            data = json.load(file)
+        
+        for url, content in data.items():
+            summary = content.get("summary", "")
+            category = content.get("category", "")
+            embeddings = content.get("embeddings", [])
+            full_content = content.get("content", "")
+            unique_id = hashlib.sha256(url.encode('utf-8')).hexdigest()[0:35]
+
+            try:
+                memory.get(unique_id)
+                print(f"Dado já existente no Mem0AI: {url}")
+            except Exception as e:
+                memory_item = memory.add(
+                    [{"role" : "assistant", "category": category, "summary": json.dumps(summary), "url": json.dumps(url), "content": json.dumps(full_content)}],
+                    user_id="knowledge",
+                    metadata={"url": json.dumps(url), "category": category, "embeddings": embeddings},
+                    prompt=mem0_knowledge_prompt
+                )
+                print(f"Inserindo novo dado: {memory_item}")
+    except Exception as e:
+        print(f"❌ Error in JSON: {e}")
+        print({"role" : "system","category": category, "summary": summary, "url": json.dumps(url), "content": json.dumps(full_content)})
 
 
 def train():
@@ -169,6 +234,6 @@ def api():
 
     except Exception as e:
         raise Exception(f"An error occurred while creating server: {e}")
-    
+
 if __name__ == "__main__":
     api()
