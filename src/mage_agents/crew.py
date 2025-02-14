@@ -10,13 +10,13 @@ from mage_agents.tools.calculator_tools import CalculatorTools
 from mage_agents.tools.magento_tools import MagentoProductSearchTool, MagentoProductCreationTool, MagentoInventoryTool, MagentoOrderListTool
 from crewai.knowledge.source.json_knowledge_source import JSONKnowledgeSource
 from crewai.knowledge.storage.knowledge_storage import KnowledgeStorage
-from crewai_tools import WebsiteSearchTool, ScrapeWebsiteTool, TXTSearchTool
+
 #from mage_agents.tools.sec_tools import SEC10KTool, SEC10QTool
 from dotenv import load_dotenv
 import os
 load_dotenv()
 
-llm = LLM(model="ollama/llama3.2:latest", base_url="http://localhost:11434", temperature=0.2)
+llm = LLM(model=os.getenv("MODEL"), base_url=os.getenv("API_BASE"), temperature=0.2)
 
 # Configuration for embeddings
 embedder = {

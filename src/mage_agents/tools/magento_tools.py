@@ -1,3 +1,7 @@
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
 from crewai.tools import BaseTool
 from magento import Client
 from magento.search import ProductSearch, OrderSearch
@@ -10,7 +14,14 @@ class MagentoProductSearchTool(BaseTool):
     """
     def __init__(self, product_att: Optional[str] = None, product_ref: Optional[str] = None, **kwargs):
         super().__init__()
-        self.client = Client(domain="https://magento.test", username="gabriel", password="teste123@", local=True, login=False, token="xzzxlxqx4jdh7rqfmx1ra43adjt1h567")
+        self.client = Client(
+            domain=os.getenv("MAGENTO_DOMAIN"), 
+            username=os.getenv("MAGENTO_USERNAME"), 
+            password=os.getenv("MAGENTO_PASSWORD"), 
+            local=True, 
+            login=False, 
+            token=os.getenv("MAGENTO_TOKEN")
+        )
         self.product_ref = product_ref
         self.product_att = product_att
 
@@ -30,7 +41,14 @@ class MagentoProductCreationTool(BaseTool):
     """
     def __init__(self, sku: Optional[str] = None, name: Optional[str] = None, price: Optional[float] = None, description: Optional[str] = None, **kwargs):
         super().__init__()
-        self.client = Client(domain="https://magento.test", username="gabriel", password="teste123@", local=True, login=False, token="xzzxlxqx4jdh7rqfmx1ra43adjt1h567")
+        self.client = Client(
+            domain=os.getenv("MAGENTO_DOMAIN"), 
+            username=os.getenv("MAGENTO_USERNAME"), 
+            password=os.getenv("MAGENTO_PASSWORD"), 
+            local=True, 
+            login=False, 
+            token=os.getenv("MAGENTO_TOKEN")
+        )
         self.sku = sku
         self.name = name
         self.price = price
@@ -63,7 +81,14 @@ class MagentoInventoryTool(BaseTool):
     """
     def __init__(self, sku: Optional[str] = None, qty: Optional[int] = None, **kwargs):
         super().__init__()
-        self.client = Client(domain="https://magento.test", username="gabriel", password="teste123@", local=True, login=False, token="xzzxlxqx4jdh7rqfmx1ra43adjt1h567")
+        self.client = Client(
+            domain=os.getenv("MAGENTO_DOMAIN"), 
+            username=os.getenv("MAGENTO_USERNAME"), 
+            password=os.getenv("MAGENTO_PASSWORD"), 
+            local=True, 
+            login=False, 
+            token=os.getenv("MAGENTO_TOKEN")
+        )
         self.sku = sku
         self.qty = qty
 
@@ -83,7 +108,14 @@ class MagentoOrderListTool(BaseTool):
 
     def __init__(self, **kwargs):
         super().__init__()
-        self.client = Client(domain="https://magento.test", username="gabriel", password="teste123@", local=True, login=False, token="xzzxlxqx4jdh7rqfmx1ra43adjt1h567")
+        self.client = Client(
+            domain=os.getenv("MAGENTO_DOMAIN"), 
+            username=os.getenv("MAGENTO_USERNAME"), 
+            password=os.getenv("MAGENTO_PASSWORD"), 
+            local=True, 
+            login=False, 
+            token=os.getenv("MAGENTO_TOKEN")
+        )
 
     def list_orders(self):
         """Lista pedidos recentes no Magento."""

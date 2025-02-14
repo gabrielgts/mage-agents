@@ -76,14 +76,14 @@ config = {
             "model": "llama3.2:latest",
             "temperature": 0.1,
             "max_tokens": 2000,
-            "ollama_base_url": "http://localhost:11434",  # Ensure this URL is correct
+            "ollama_base_url": os.getenv("API_BASE"),  # Ensure this URL is correct
         },
     },
     "embedder": {
         "provider": "ollama",
         "config": {
             "model": "nomic-embed-text:latest",
-            "ollama_base_url": "http://localhost:11434?num_ctx=4048",
+            "ollama_base_url": os.getenv("API_BASE"),
         },
     },
     "version": "v1.1",
