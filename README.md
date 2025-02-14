@@ -19,6 +19,12 @@ Bem-vindo ao **MageAgents Crew**, um sistema multi-agente baseado no [crewAI](ht
 - **Docker** e **Docker Compose**
 - **CrewAI** e **Ollama**
 - **Magento 2 (via Docker)**
+- **Requisitos de Hardware**:
+  - **CPU**: Mínimo 8 núcleos (recomendado 16 núcleos)
+  - **RAM**: Mínimo 16GB (recomendado 32GB)
+  - **GPU**: Recomendada GPU com suporte a CUDA (NVIDIA RTX 3070 ou superior) para processamento acelerado de IA
+  - **Armazenamento**: SSD com pelo menos 50GB livres
+
 
 ### ♻️ Configuração Inicial
 1. Clone este repositório:
